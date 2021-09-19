@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <form method="POST" enctype="multipart/form-data">
+            {%csrf_token%}
+            <div class="form-group">
+                <label>Nombre*</label>
+                <input type="text" class="form-control" name="nombre" placeholder="Ingrese su nombre" required />
+            </div>
+            <div class="form-group">
+                <label>Apellidos*</label>
+                <input type="text" class="form-control" name="apellidos" placeholder="Ingrese sus apellidos" required />
+            </div>
+            <div class="form-group">
+                <label>Fotografía*</label>
+                <div class="input-group mb-3">
+                    <input type="file" class="form-control" accept="image/*" name="fotografia" required />
+                    <label class="input-group-text">Subir</label>
+                </div>
+                <div class="form-group">
+                    <label>Fecha de nacimiento</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="fecha_nacio"
+                            value="{{contacto.fecha_nacio|date:'d/m/Y'}}" autocomplete="off" id="datepicker">
+                        <label class="input-group-text"><i class="bi bi-calendar-date"></i></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col text-right">
+                <a class="btn btn-secondary" href="{% url 'inicio' %}" role="button">Cancelar</a>
+                <button type="submit" class="btn btn-primary" id="crearcontactobutton">Crear contacto</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script type="text/javascript">
+    $(function () {
+        $("#datepicker").datepicker({
+            dateFormat: "dd/mm/yy",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "-100:+0", // this is the option you're looking for
+        });
+    });
+</script>
+{% endblock %}

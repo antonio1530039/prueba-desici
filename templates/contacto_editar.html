@@ -1,0 +1,317 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+<div class="card">
+  <div class="card-body">
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active" id="contacto-tab" data-toggle="tab" href="#tab-pane-contacto" role="tab"
+          aria-controls="home" aria-selected="true">Contacto</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="direccion-tab" data-toggle="tab" href="#tab-pane-direccion" role="tab"
+          aria-controls="profile" aria-selected="false">Dirección</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="telefonos-tab" data-toggle="tab" href="#tab-pane-telefonos" role="tab"
+          aria-controls="contact" aria-selected="false">Teléfonos</a>
+      </li>
+    </ul>
+
+    <form method="POST" enctype="multipart/form-data"> {%csrf_token%}
+
+      <div class="tab-content" id="myTabContent">
+        <!-- Contacto tab -->
+        <div class="tab-pane fade show active" id="tab-pane-contacto" role="tabpanel" aria-labelledby="contacto-tab">
+          <div class="form-group">
+            <label>Nombre*</label>
+            <input type="text" class="form-control" name="nombre" placeholder="Ingrese su nombre"
+              value="{{contacto.nombre}}" required>
+          </div>
+          <div class="form-group">
+            <label>Apellidos*</label>
+            <input type="text" class="form-control" name="apellidos" placeholder="Ingrese sus apellidos"
+              value="{{contacto.apellidos}}" required>
+          </div>
+          <div class="form-group">
+            <label>Fotografía actual*</label>
+            {% if contacto.fotografia %}
+            <br><img src="{{contacto.fotografia.url}}" width="50" height="50">
+            {% endif %}
+          </div>
+          <div class="input-group mb-3">
+            <label class="input-group-text">Remplazar fotografía</label>
+            <input type="file" class="form-control" accept="image/*" name="fotografia">
+          </div>
+          <div class="form-group">
+            <label>Fecha de nacimiento</label>
+            <div class="input-group">
+              <input type="text" class="form-control" name="fecha_nacio" value="{{contacto.fecha_nacio|date:'d/m/Y'}}"
+              autocomplete="off" id="datepicker">
+              <label class="input-group-text"><i class="bi bi-calendar-date"></i></label>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Dirección tab -->
+        <div class="tab-pane fade" id="tab-pane-direccion" role="tabpanel" aria-labelledby="direccion-tab">
+          <div class="form-group">
+            <label>Calle*</label>
+            <input type="text" class="form-control" id="calle" name="calle" value="{{direccion.calle}}" required>
+          </div>
+          <div class="form-group">
+            <label>Numero exterior*</label>
+            <input type="text" class="form-control" id="numero_exterior" name="numero_exterior"
+              value="{{direccion.numero_exterior}}" required>
+          </div>
+          <div class="form-group">
+            <label>Numero interior*</label>
+            <input type="text" class="form-control" id="numero_interior" name="numero_interior"
+              value="{{direccion.numero_interior}}" required>
+          </div>
+          <div class="form-group">
+            <label>Colonia*</label>
+            <input type="text" class="form-control" id="colonia" name="colonia" value="{{direccion.colonia}}" required>
+          </div>
+          <div class="form-group">
+            <label>Municipio*</label>
+            <input type="text" class="form-control" id="municipio" name="municipio" value="{{direccion.municipio}}"
+              required>
+          </div>
+          <div class="form-group">
+            <label>Estado*</label>
+            <select class="form-control" id="estado" name="estado" required>
+              <option value="" selected>----</option>
+              {% for estado in ESTADOS %}
+                {% if estado.0 == direccion.estado %}
+                  <option value="{{estado.0}}" selected>{{ estado.1 }}</option>
+                {% else %}
+                  <option value="{{estado.0}}">{{ estado.1 }}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="exampleFormControlTextarea1">Referencias*</label>
+            <textarea class="form-control" id="referencias" name="referencias" rows="3"
+              required>{{direccion.referencias}}</textarea>
+          </div>
+        </div>
+
+        <!-- Telefonos tab -->
+        <div class="tab-pane fade" id="tab-pane-telefonos" role="tabpanel" aria-labelledby="telefonos-tab">
+          <br>
+          <div class="col text-right">
+            <p>
+              <button type="button" class="btn btn-primary" onclick="agregarFormTelefono({{contacto.pk}});">Agregar
+                teléfono</button>
+            </p>
+          </div>
+
+          <div class="row">
+            {{form_telefono.management_form}}
+            <table class="table" id="tabla_telefonos_forms">
+              <tbody>
+                {% for telefono in telefonos %}
+                <tr id="tabla_telefonos_forms_row{{telefono.0}}">
+                  <td>
+                    <!-- Fila formset telefono -->
+                    <div class="form-group">
+                      <label>Tipo*</label>
+                      <select class="form-control" name="telefono_set-{{telefono.0}}-tipo"
+                        id="id_telefono_set-{{telefono.0}}-tipo" required>
+                        <option>----</option>
+                        {% for TIPO_TELEFONO in TIPOS_TELEFONO %}
+                        {% if telefono.1.tipo == TIPO_TELEFONO.0%}
+                        <option value="{{TIPO_TELEFONO.0}}" selected>{{TIPO_TELEFONO.1}}</option>
+                        {% else %}
+                        <option value="{{TIPO_TELEFONO.0}}">{{TIPO_TELEFONO.1}}</option>
+                        {% endif %}
+                        {% endfor %}
+                      </select>
+
+                    </div>
+                  </td>
+
+                  <td>
+                    <div class="form-group">
+                      <label>Alias*</label>
+                      <input type="text" class="form-control" name="telefono_set-{{telefono.0}}-alias"
+                        id="id_telefono_set-{{telefono.0}}-alias" value="{{telefono.1.alias}}"
+                        onkeyup="detectarCambioEnInput({{telefono.0}});" required>
+                    </div>
+                  </td>
+
+                  <td>
+                    <div class="form-group">
+                      <label>Número*</label>
+                      <input type="text" class="form-control" name="telefono_set-{{telefono.0}}-numero"
+                        id="id_telefono_set-{{telefono.0}}-numero" value="{{telefono.1.numero}}"
+                        onkeyup="detectarCambioEnInput({{telefono.0}});" required>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="form-group"><br>
+                      <a role="button" id="id_telefono_set-{{telefono.0}}-cancelarbutton" class="btn btn-warning"
+                        href="{% url 'telefono_eliminar' pk=telefono.1.pk %}"
+                        onclick="confirmarEliminacionTelefono('id_telefono_set-{{telefono.0}}-cancelarbutton');">Eliminar</a>
+                    </div>
+                  </td>
+                  <input type="hidden" name="telefono_set-{{telefono.0}}-id" value="{{telefono.1.pk}}"
+                    id="id_telefono_set-{{telefono.0}}-id">
+                  <input type="hidden" name="telefono_set-{{telefono.0}}-contacto" value="{{telefono.1.contacto.pk}}"
+                    id="id_telefono_set-{{telefono.0}}-contacto">
+                  {% endfor %}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+
+
+
+      <div class="col text-right">
+        <a class="btn btn-secondary" href="{% url 'inicio' %}" role="button">Regresar</a>
+        <button type="submit" class="btn btn-primary">Actualizar contacto</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script type="text/javascript">
+  function confirmarEliminacionTelefono(id_boton) {
+    event.preventDefault();
+    Swal.fire({
+      title: 'Confirmar eliminación',
+      text: '¿Estás seguro que deseas borrar el telefono? Por favor, asegurate de haber guardado previamente las modificaciones realizadas a la información del contacto.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Confirmar',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location = $('#' + id_boton).attr('href');
+      }
+    })
+  }
+
+  function detectarCambioEnInput(id_row) {
+    if ($('#id_telefono_set-' + id_row + '-alias').val().length == 0
+      && $('#id_telefono_set-' + id_row + '-numero').val().length == 0) {
+      $('#id_telefono_set-' + id_row + '-cancelarbutton').html("Cancelar");
+    } else {
+      $('#id_telefono_set-' + id_row + '-cancelarbutton').html("Eliminar");
+    }
+  }
+
+  function agregarFormTelefono(contacto_pk) {
+    var n_forms = $("#id_telefono_set-TOTAL_FORMS").val(); //numero total de forms del inlineformset
+
+    //crear select para Tipo
+    var label_tipo = $('<label>').text('Tipo');
+    var select_tipo = $('<select> ' +
+      '<option value="">----</option>' +
+      '<option value="1">Casa</option>' +
+      '<option value="2">Teléfono móvil</option>').
+      attr({
+        class: "form-control",
+        name: 'telefono_set-' + n_forms + '-tipo',
+        id: 'id_telefono_set-' + n_forms + '-tipo',
+        required: true
+      });
+
+    //crear input para Alias
+    var label_alias = $('<label>').text('Alias');
+    var input_alias = $('<input type="text">').
+      attr({
+        class: 'form-control',
+        id: 'id_telefono_set-' + n_forms + '-alias',
+        name: 'telefono_set-' + n_forms + '-alias',
+        required: true
+      }).on("input", function () {
+        detectarCambioEnInput(n_forms);
+      });
+
+    //crear input para Numero
+    var label_numero = $('<label>').text('Número');
+    var input_numero = $('<input type="text">').
+      attr({
+        class: 'form-control',
+        id: 'id_telefono_set-' + n_forms + '-numero',
+        name: 'telefono_set-' + n_forms + '-numero',
+        required: true
+      }).
+      on("input", function () {
+        detectarCambioEnInput(n_forms);
+      });
+
+    //crear input hidden para pk del contacto (utilizado por el management_form)
+    var input_contacto_id = $('<input type="hidden">').
+      attr({
+        id: 'id_telefono_set-' + n_forms + '-contacto',
+        name: 'telefono_set-' + n_forms + '-contacto',
+        value: contacto_pk
+      });
+
+    //crear boton de cancelar (eliminar el form de la fila indicada)
+    var cancelar_button = $('<button type="button">').
+      attr({
+        class: "btn btn-warning",
+        id: 'id_telefono_set-' + n_forms + '-cancelarbutton',
+      }).
+      click(function () {
+        $('#tabla_telefonos_forms_row' + n_forms).remove();
+      }).html("Cancelar");
+
+    //agregar los elementos creados como una fila de la tabla de telefonos
+    $('#tabla_telefonos_forms').
+      append(
+        $('<tr>').
+          attr({
+            id: "tabla_telefonos_forms_row" + n_forms
+          }).
+          append(
+            $('<td>').append(label_tipo).append(select_tipo)
+          ).append(
+            $('<td>').append(label_alias).append(input_alias)
+          ).append(
+            $('<td>').append(label_numero).append(input_numero)
+          ).append(
+            $('<td>').append($('<br>')).append(cancelar_button).append(input_contacto_id)
+          )
+      );
+
+    $("#id_telefono_set-TOTAL_FORMS").val(parseInt(n_forms) + 1); //actulizar valor de management_form
+  }
+
+
+  $(function () {
+    $("#datepicker").datepicker({
+      dateFormat: "dd/mm/yy",
+      changeMonth: true,
+      changeYear: true,
+      yearRange: "-100:+0", // this is the option you're looking for
+    });
+
+    if ($("#calle").val().length == 0 && $("#numero_exterior").val().length == 0 && $("#numero_interior").val().length == 0 && $("#colonia").val().length == 0 && $("#municipio").val().length == 0 && $("#estado").val().length == 0 && $("#referencias").val().length == 0) {
+      $('#contacto-tab').attr({ class: "nav-link", "aria-selected": false });
+      $('#direccion-tab').attr({ class: "nav-link active show", "aria-selected": true });
+      $('#tab-pane-contacto').attr({ class: "tab-pane fade" });
+      $('#tab-pane-direccion').attr({ class: "tab-pane fade show active" });
+      Swal.fire({
+        title: '¡Excelente!',
+        text: 'Previamente registrarse este contacto. Por favor, completa su información de dirección y teléfonos.',
+        icon: 'success',
+        confirmButtonText: 'OK'
+      })
+    }
+  });
+</script>
+{% endblock %}
