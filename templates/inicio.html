@@ -30,9 +30,11 @@
 		</div>
 	</div>
 </div>
+{% endblock %}
 
 {% block extrajs %}
 <script type="text/javascript">
+	//muestra un aviso e confirmación al intentar eliminar un contacto
 	function confirmar(id_boton) {
 		event.preventDefault();
 		Swal.fire({
@@ -49,8 +51,4 @@
 		})
 	}
 </script>
-{% endblock %}
-
-
-
 {% endblock %}

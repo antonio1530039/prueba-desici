@@ -172,9 +172,6 @@
 
         </div>
       </div>
-
-
-
       <div class="col text-right">
         <a class="btn btn-secondary" href="{% url 'inicio' %}" role="button">Regresar</a>
         <button type="submit" class="btn btn-primary">Actualizar contacto</button>
@@ -186,6 +183,8 @@
 
 {% block extrajs %}
 <script type="text/javascript">
+
+  //Muestra una alerta de confirmación cuando se intenta eliminar un telefono
   function confirmarEliminacionTelefono(id_boton) {
     event.preventDefault();
     Swal.fire({
@@ -202,6 +201,7 @@
     })
   }
 
+  //Verifica si se ha escrito algo en los inputs alias o numeros, de ser verdadero cambia el texto del boton Cancelar a Eliminar
   function detectarCambioEnInput(id_row) {
     if ($('#id_telefono_set-' + id_row + '-alias').val().length == 0
       && $('#id_telefono_set-' + id_row + '-numero').val().length == 0) {
@@ -211,6 +211,7 @@
     }
   }
 
+  //Agrega un nuevo formulario para registrar un teléfono
   function agregarFormTelefono(contacto_pk) {
     var n_forms = $("#id_telefono_set-TOTAL_FORMS").val(); //numero total de forms del inlineformset
 
@@ -270,7 +271,7 @@
         $('#tabla_telefonos_forms_row' + n_forms).remove();
       }).html("Cancelar");
 
-    //agregar los elementos creados como una fila de la tabla de telefonos
+    //agregar los elementos creados como una fila de la tabla de forms telefonos
     $('#tabla_telefonos_forms').
       append(
         $('<tr>').
@@ -291,15 +292,8 @@
     $("#id_telefono_set-TOTAL_FORMS").val(parseInt(n_forms) + 1); //actulizar valor de management_form
   }
 
-
+  //verificar si no se ha registrado previamente la dirección para mostrar un mensaje
   $(function () {
-    $("#datepicker").datepicker({
-      dateFormat: "dd/mm/yy",
-      changeMonth: true,
-      changeYear: true,
-      yearRange: "-100:+0", // this is the option you're looking for
-    });
-
     if ($("#calle").val().length == 0 && $("#numero_exterior").val().length == 0 && $("#numero_interior").val().length == 0 && $("#colonia").val().length == 0 && $("#municipio").val().length == 0 && $("#estado").val().length == 0 && $("#referencias").val().length == 0) {
       $('#contacto-tab').attr({ class: "nav-link", "aria-selected": false });
       $('#direccion-tab').attr({ class: "nav-link active show", "aria-selected": true });
